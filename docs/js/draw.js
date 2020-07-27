@@ -48,6 +48,11 @@ function draw(title, don, ka, all) {
                     }
                 }]
             },
+            elements: {
+                line: {
+                    tension: 0, // ベジェ曲線を無効にする
+                }
+            },
         }
     });
 }

@@ -1,3 +1,11 @@
+/**
+ * グラフを描写する関数
+ * 
+ * @param {str} title 曲名
+ * @param {Array[float]} don ドンの密度
+ * @param {Array[float]} ka カツの密度
+ * @param {Array[float]} all 小節の密度
+ */
 function draw(title, don, ka, all) {
 
     var labels = [];
@@ -59,7 +67,11 @@ function draw(title, don, ka, all) {
 
 
 
-// 表の動的作成
+/**
+ * 分析結果をテーブル表示する関数
+ * @param {Array[Array[float, float, float, float, float, str]]} data 分析結果
+ * @param {str} tableId elementのID
+ */
 function makeTable(data, tableId) {
     // 表の作成開始
     var rows = [];

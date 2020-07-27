@@ -2,7 +2,7 @@
 - 譜面中の各小節での密度をグラフ化するツール
 - [GitHub Pages](https://mos305.github.io/ScoreDensityVisualizer/)にて公開中
 
-![スクリーンショット](README-img/screenshot.png)
+![スクリーンショット](README-img/screenshot_02.png)
 
 # 使い方
 `[ファイルを選択]`でTJAファイルを選択するとグラフが表示される

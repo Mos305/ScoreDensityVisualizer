@@ -122,7 +122,7 @@ function counter(str, seq) {
  * @returns {object{"density": Array[float, float, float, float, float, str], "score": str, "isContinue": bool}} {"density": [ドンの密度, カツの密度, 全ノーツの密度, BPM, 拍子, 譜面], "score": 小節初期化用の空文字, "isContinue": その後の処理を実行しないかどうか}
  */
 function calcDensity(line, score, bpm, measure) {
-    match = line.match(/[0-9]+,/g);
+    match = line.match(/^[0-9]+,/g);
     if (match) {
         // ドン数，カツ数をカウント
         score += match[0];
@@ -146,7 +146,6 @@ function calcDensity(line, score, bpm, measure) {
  * @param {float} currentMeasure 拍子の初期値
  */
 function analyzeScore(lines, currentBpm, currentMeasure) {
-
     var density = [];
     var currentScore = "";
     for (var i = 0; i < lines.length; i++) {

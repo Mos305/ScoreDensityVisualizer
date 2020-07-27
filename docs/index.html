@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <title>グラフ</title>
+</head>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+
+    <script src="js/draw.js"></script>
+    <script src="js/analyze.js"></script>
+
+    <script src="js/load.js"></script>
+
+    <h1>譜面の小節ごとの密度の変化</h1>
+    <form name="test">
+        <input type="file" id="file-selector"><br>
+        <!-- <textarea name="txt" rows="10" cols="40" readonly></textarea> -->
+    </form>
+
+    <canvas id="myLineChart"></canvas>
+
+    <div id="table"></div>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>

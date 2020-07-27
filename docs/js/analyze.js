@@ -194,26 +194,28 @@ function analyzeScore(lines, currentBpm, currentMeasure) {
  * 
  * @param {Array[Array[float, float, float, float, float, float, str]]} denAry 分析結果
  * 
- * @returns {object{Array[float], Array[float], Array[float]}} {ドンの密度, カツの密度, 全ノーツの密度}
+ * @returns {object{Array[float], Array[float], Array[float], Array[float]}} {時系列, ドンの密度, カツの密度, 全ノーツの密度}
  */
 function splitDensityArray(denAry) {
+    var timeSeries = [];
     var donDensity = [];
     var kaDensity = [];
     var allDensity = [];
     for (let i = 0; i < denAry.length; i++) {
+        timeSeries[i] = denAry[i][0];
         donDensity[i] = denAry[i][1];
         kaDensity[i] = denAry[i][2];
         allDensity[i] = denAry[i][3];
     }
-    return { donDensity, kaDensity, allDensity };
+    return { timeSeries, donDensity, kaDensity, allDensity };
 }
 
 /**
  * 表示用に分析結果を整える関数
  * 
- * @param {Arrya[Array[float, float, float, float, float, float, str]]} denAry 分析結果
+ * @param {Array[Array[float, float, float, float, float, float, str]]} denAry 分析結果
  * 
- * @param {Arrya[Array[float, float, float, float, float, float, str]]} 整えた分析結果
+ * @param {Array[Array[float, float, float, float, float, float, str]]} 整えた分析結果
  */
 function setTableForDisplay(denAry) {
     var table = [
@@ -259,6 +261,6 @@ function analyze(contents) {
     makeTable(setTableForDisplay(density), "table");
 
     // グラフに分析結果を出力
-    var { donDensity, kaDensity, allDensity } = splitDensityArray(density);
-    draw({ "songTitle": songTitle, "playTime": density[density.length - 1][0], "notes": notes }, donDensity, kaDensity, allDensity);
+    var { timeSeries, donDensity, kaDensity, allDensity } = splitDensityArray(density);
+    draw({ "songTitle": songTitle, "playTime": density[density.length - 1][0], "notes": notes }, timeSeries, donDensity, kaDensity, allDensity);
 }

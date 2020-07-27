@@ -1,4 +1,4 @@
-function draw(don, ka, all) {
+function draw(title, don, ka, all) {
 
     var labels = [];
     for (var i = 0; i < all.length; i++) {
@@ -34,7 +34,7 @@ function draw(don, ka, all) {
         options: {
             title: {
                 display: true,
-                text: '譜面の密度変化'
+                text: '譜面の密度変化（曲：' + title + '）'
             },
             scales: {
                 yAxes: [{

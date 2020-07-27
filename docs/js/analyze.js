@@ -250,7 +250,9 @@ function analyze(contents) {
     // 譜面記述行を抽出
     var scoreLines = lines.slice(getInstRowNo(lines, "#START") + 1, getInstRowNo(lines, "#END"));
 
-    // BPMと拍子の初期値を設定
+    // ヘッダから曲名を抽出
+    var songTitle = extractInstArg(lines, "TITLE:")
+        // BPMと拍子の初期値を設定
     var currentBpm = extractBpm(extractInstArg(lines, "BPM:"), "BPM:"); // ヘッダから抽出
     var currentMeasure = 4.0 / 4.0;
 
@@ -262,5 +264,5 @@ function analyze(contents) {
 
     // グラフに分析結果を出力
     var { donDensity, kaDensity, allDensity } = splitDensityArray(density);
-    draw(donDensity, kaDensity, allDensity);
+    draw(songTitle, donDensity, kaDensity, allDensity);
 }

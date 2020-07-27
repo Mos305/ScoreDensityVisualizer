@@ -1,12 +1,12 @@
 /**
  * グラフを描写する関数
  * 
- * @param {str} title 曲名
+ * @param {object{"songTitle": str, "playTime": float, "notes": notes}} info {"songTitle": 曲名, "playTime": 演奏時間, "notes": 総ノーツ数}
  * @param {Array[float]} don ドンの密度
  * @param {Array[float]} ka カツの密度
  * @param {Array[float]} all 小節の密度
  */
-function draw(title, don, ka, all) {
+function draw(info, don, ka, all) {
 
     var labels = [];
     for (var i = 0; i < all.length; i++) {
@@ -31,18 +31,28 @@ function draw(title, don, ka, all) {
         borderColor: "rgba(0,255,0,1)",
         backgroundColor: "rgba(0,0,0,0)"
     }
+    var ave = []
+    for (var i = 0; i < all.length; i++) {
+        ave[i] = info["notes"] / parseFloat(info["playTime"]);
+    }
+    var datasetAve = {
+        label: '平均密度[打/s]',
+        data: ave,
+        borderColor: "rgba(64,64,64,1)",
+        backgroundColor: "rgba(0,0,0,0)"
+    }
 
     var ctx = document.getElementById("myLineChart");
     var myLineChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
-            datasets: [datasetDon, datasetKa, datasetAll],
+            datasets: [datasetDon, datasetKa, datasetAll, datasetAve],
         },
         options: {
             title: {
                 display: true,
-                text: '譜面の密度変化（曲：' + title + '）'
+                text: '譜面の密度変化（曲：' + info["songTitle"] + '）'
             },
             scales: {
                 yAxes: [{
@@ -84,7 +94,7 @@ function makeTable(data, tableId) {
             cell = rows[i].insertCell(-1);
             cell.appendChild(document.createTextNode(data[i][j]));
             // 背景色の設定
-            if (j == 0) {
+            if (j == 0 || j == 1) {
                 cell.style.backgroundColor = "#bbb";
             } else if (i == 0) {
                 cell.style.backgroundColor = "#bbb";

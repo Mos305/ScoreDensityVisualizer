@@ -118,10 +118,11 @@ function counter(str, seq) {
  * @param {str} score その小節のそれまでの譜面
  * @param {float} bpm 現在のBPM
  * @param {float} measure 現在の拍子
+ * @param {float} time それまでの演奏時間
  * 
- * @returns {object{"density": Array[float, float, float, float, float, str], "score": str, "isContinue": bool}} {"density": [ドンの密度, カツの密度, 全ノーツの密度, BPM, 拍子, 譜面], "score": 小節初期化用の空文字, "isContinue": その後の処理を実行しないかどうか}
+ * @returns {object{"density": Array[float, float, float, float, float, float, str], "score": str, "isContinue": bool, "notes": int}} {"density": [演奏時間, ドンの密度, カツの密度, 全ノーツの密度, BPM, 拍子, 譜面], "score": 小節初期化用の空文字, "isContinue": その後の処理を実行しないかどうか, "notes": その小節のノーツ数}
  */
-function calcDensity(line, score, bpm, measure) {
+function calcDensity(line, score, bpm, measure, time) {
     match = line.match(/^[0-9]+,/g);
     if (match) {
         // ドン数，カツ数をカウント
@@ -131,10 +132,11 @@ function calcDensity(line, score, bpm, measure) {
         var countAll = countDon + countKa;
         // その小節の長さ（秒数）を計算
         var barLength = 240.0 / bpm * measure;
+        time += barLength;
         // 密度を計算して返す
-        return { "density": [countDon / barLength, countKa / barLength, countAll / barLength, bpm, measure, score], "score": "", "isContinue": true };
+        return { "density": [time, countDon / barLength, countKa / barLength, countAll / barLength, bpm, measure, score], "score": "", "isContinue": true, "notes": parseInt(countAll) };
     } else {
-        return { "density": [null, null, null, null, null, null], "score": score, "isContinue": false };
+        return { "density": [null, null, null, null, null, null, null], "score": score, "isContinue": false };
     }
 }
 
@@ -144,10 +146,14 @@ function calcDensity(line, score, bpm, measure) {
  * @param {Array[str]} lines ファイル内容（行区切りの配列）
  * @param {float} currentBpm BPMの初期値
  * @param {float} currentMeasure 拍子の初期値
+ * 
+ * @returns {object{Array[float, float, float, float, float, float, str], int}} {分析結果, ノーツ数}
  */
 function analyzeScore(lines, currentBpm, currentMeasure) {
     var density = [];
     var currentScore = "";
+    var playTime = 0.0;
+    var notes = 0;
     for (var i = 0; i < lines.length; i++) {
         var result;
         var isContinue = false;
@@ -167,10 +173,12 @@ function analyzeScore(lines, currentBpm, currentMeasure) {
         }
 
         // 密度を計算
-        result = calcDensity(lines[i], currentScore, currentBpm, currentMeasure);
+        result = calcDensity(lines[i], currentScore, currentBpm, currentMeasure, playTime);
         if (result["isContinue"]) {
             density.push(result["density"]);
             currentScore = result["score"];
+            playTime = result["density"][0];
+            notes += result["notes"];
             continue;
         }
 
@@ -178,13 +186,13 @@ function analyzeScore(lines, currentBpm, currentMeasure) {
         currentScore += updateCurrentScore(lines[i]);
     }
 
-    return density;
+    return { density, notes };
 }
 
 /**
  * 分析結果をまとめなおす関数
  * 
- * @param {Array[Array[float, float, float, float, float, str]]} denAry 分析結果
+ * @param {Array[Array[float, float, float, float, float, float, str]]} denAry 分析結果
  * 
  * @returns {object{Array[float], Array[float], Array[float]}} {ドンの密度, カツの密度, 全ノーツの密度}
  */
@@ -193,9 +201,9 @@ function splitDensityArray(denAry) {
     var kaDensity = [];
     var allDensity = [];
     for (let i = 0; i < denAry.length; i++) {
-        donDensity[i] = denAry[i][0];
-        kaDensity[i] = denAry[i][1];
-        allDensity[i] = denAry[i][2];
+        donDensity[i] = denAry[i][1];
+        kaDensity[i] = denAry[i][2];
+        allDensity[i] = denAry[i][3];
     }
     return { donDensity, kaDensity, allDensity };
 }
@@ -203,13 +211,13 @@ function splitDensityArray(denAry) {
 /**
  * 表示用に分析結果を整える関数
  * 
- * @param {Arrya[Array[float, float, float, float, float, str]]} denAry 分析結果
+ * @param {Arrya[Array[float, float, float, float, float, float, str]]} denAry 分析結果
  * 
- * @param {Arrya[Array[float, float, float, float, float, str]]} 整えた分析結果
+ * @param {Arrya[Array[float, float, float, float, float, float, str]]} 整えた分析結果
  */
 function setTableForDisplay(denAry) {
     var table = [
-        ["小節番号", "ドンの密度[打/s]", "カツの密度[打/s]", "小節の密度[打/s]", "BPM", "拍子", "譜面"]
+        ["小節番号", "演奏時間[s]", "ドンの密度[打/s]", "カツの密度[打/s]", "小節の密度[打/s]", "BPM", "拍子", "譜面"]
     ];
     for (var i = 0; i < denAry.length; i++) {
         var row = [
@@ -245,12 +253,12 @@ function analyze(contents) {
     var currentMeasure = 4.0 / 4.0;
 
     // 譜面を分析
-    var density = analyzeScore(scoreLines, currentBpm, currentMeasure);
+    var { density, notes } = analyzeScore(scoreLines, currentBpm, currentMeasure);
 
     // テーブルに分析結果を出力
     makeTable(setTableForDisplay(density), "table");
 
     // グラフに分析結果を出力
     var { donDensity, kaDensity, allDensity } = splitDensityArray(density);
-    draw(songTitle, donDensity, kaDensity, allDensity);
+    draw({ "songTitle": songTitle, "playTime": density[density.length - 1][0], "notes": notes }, donDensity, kaDensity, allDensity);
 }

@@ -9,13 +9,3 @@
 function floor(x, d) {
     return Math.floor(x * Math.pow(10, d)) / Math.pow(10, d);
 }
-
-function sum(arr) {
-    return arr.reduce(function(prev, current, i, arr) {
-        return prev + current;
-    });
-}
-
-function average(arr) {
-    return sum(arr) / arr.length;
-}
